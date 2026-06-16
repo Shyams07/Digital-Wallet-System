@@ -3,7 +3,6 @@ package com.payment.transaction.controller;
 import com.payment.transaction.entity.Transaction;
 import com.payment.transaction.service.TransactionService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
