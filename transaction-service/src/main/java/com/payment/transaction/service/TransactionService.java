@@ -11,4 +11,6 @@ public interface TransactionService {
     public Transaction getTransactionById(Long id);
 
     public List<Transaction> getTransactionsByUser(Long userId);
+
+
 }
