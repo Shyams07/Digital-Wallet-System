@@ -1,5 +1,6 @@
 server:
   port: 8082
+  address: 127.0.0.1
 
 spring:
   application:
@@ -23,8 +24,7 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+    open-in-view: false
 
-
-  cloud:
-    compatibility-verifier:
-      enabled: false
+jwt:
+  secret: ${JWT_SECRET:secret123secret123secret123secret12}

@@ -6,10 +6,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.payment</groupId>
-    <artifactId>digital-wallet-system</artifactId>
+    <artifactId>payment-system</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
-    <name>Digital Wallet System</name>
+    <name>Payment System</name>
 
     <packaging>pom</packaging>
 
@@ -18,13 +18,21 @@
         <module>transaction-service</module>
         <module>notification-service</module>
         <module>reward-service</module>
+        <module>api-gateway</module>
     </modules>
 
     <properties>
         <java.version>21</java.version>
 
-        <spring.boot.version>4.1.0</spring.boot.version>
+        <!-- Stable Spring Versions -->
+        <spring.boot.version>3.5.3</spring.boot.version>
         <spring.cloud.version>2025.0.0</spring.cloud.version>
+
+        <!-- JWT -->
+        <jjwt.version>0.12.7</jjwt.version>
+
+        <!-- Resilience4j -->
+        <resilience4j.version>2.3.0</resilience4j.version>
 
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
@@ -33,6 +41,7 @@
     </properties>
 
     <dependencyManagement>
+
         <dependencies>
 
             <!-- Spring Boot BOM -->
@@ -53,16 +62,14 @@
                 <scope>import</scope>
             </dependency>
 
-            <dependency>
-                <groupId>org.springframework.kafka</groupId>
-                <artifactId>spring-kafka</artifactId>
-            </dependency>
-
         </dependencies>
+
     </dependencyManagement>
 
     <build>
+
         <pluginManagement>
+
             <plugins>
 
                 <plugin>
@@ -82,7 +89,9 @@
                 </plugin>
 
             </plugins>
+
         </pluginManagement>
+
     </build>
 
 </project>

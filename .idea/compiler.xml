@@ -6,6 +6,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="api-gateway" />
         <module name="transaction-service" />
         <module name="user-service" />
         <module name="notification-service" />
@@ -15,10 +16,11 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="notification-service" options="-parameters" />
-      <module name="reward-service" options="-parameters" />
-      <module name="transaction-service" options="-parameters" />
-      <module name="user-service" options="-parameters" />
+      <module name="api-gateway" options="-parameters" />
+      <module name="notification-service" options="" />
+      <module name="reward-service" options="" />
+      <module name="transaction-service" options="" />
+      <module name="user-service" options="" />
     </option>
   </component>
 </project>

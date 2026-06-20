@@ -18,53 +18,53 @@ import java.util.List;
 public class JWTrequestFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
-    public JWTrequestFilter(JWTUtil jwtUtil){
+
+    public JWTrequestFilter(JWTUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
-        final String authHeader = request.getHeader("Authorization");
-        String jwt = null;
-        String username = null;
+    protected boolean shouldNotFilter(HttpServletRequest request) {
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            jwt = authHeader.substring(7);
-            if (!jwt.isBlank()) {
-                try {
-                    username = jwtUtil.extractUsername(jwt);
-                    if (jwtUtil.validateToken(jwt, username)) {
-                        String role = jwtUtil.extractRole(jwt);
-                        UsernamePasswordAuthenticationToken authToken =
-                                new UsernamePasswordAuthenticationToken(
-                                        username,
-                                        null,
-                                        List.of(new SimpleGrantedAuthority(role))
-                                );
-                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        SecurityContextHolder.getContext().setAuthentication(authToken);
-                    }
-                } catch (Exception e) {
-                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
-                    return;
-                }
-            }
-        }
-        chain.doFilter(request, response);
+        String path = request.getRequestURI();
+
+        return path.equals("/auth/login") || path.equals("/auth/signup") || path.startsWith("/h2-console/") || path.equals("/error") || request.getMethod().equalsIgnoreCase("OPTIONS");
     }
 
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
 
+        String authHeader = request.getHeader("Authorization");
 
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String jwt = authHeader.substring(7);
+
+            try {
+                String username = jwtUtil.extractUsername(jwt);
+
+                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null && jwtUtil.validateToken(jwt, username)) {
+                    String role = jwtUtil.extractRole(jwt);
+                    String authority = role.startsWith("ROLE_") ? role : "ROLE_" + role;
+
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, null,
+                                    List.of(new SimpleGrantedAuthority(authority)));
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+
+            } catch (Exception exception) {
+                SecurityContextHolder.clearContext();
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("""
+                        {
+                          "message":"Invalid JWT Token"
+                        }
+                        """);
+                return;
+            }
+        }
+
+        chain.doFilter(request, response);
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-

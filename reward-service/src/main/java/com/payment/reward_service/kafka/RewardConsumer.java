@@ -8,7 +8,6 @@ import com.payment.reward_service.entity.Transaction;
 import com.payment.reward_service.repository.RewardRepository;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
 

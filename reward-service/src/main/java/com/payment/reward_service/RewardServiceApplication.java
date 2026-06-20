@@ -9,7 +9,7 @@ import java.util.Collections;
 public class RewardServiceApplication {
 	public static void main(String[] args) {
 		SpringApplication app = new SpringApplication(RewardServiceApplication.class);
-		app.setDefaultProperties(Collections.singletonMap("server.port", "8089"));
+		app.setDefaultProperties(Collections.singletonMap("server.port", "8085"));
 		app.run(args);
 	}
 }
