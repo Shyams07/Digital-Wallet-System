@@ -1,8 +1,11 @@
 package com.payment.transaction.kafka;
 
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.payment.transaction.entity.Transaction;
 import org.apache.kafka.clients.producer.RecordMetadata;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
@@ -14,17 +17,16 @@ public class KafkaEventProducer {
 
     private static final String TOPIC = "txn-initiated";
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<String, Transaction> kafkaTemplate;
 
-    public KafkaEventProducer(KafkaTemplate<String, String> kafkaTemplate) {
+    @Autowired
+    public KafkaEventProducer(KafkaTemplate<String, Transaction> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
-
-    public void sendTransactionEvent(String key, String transaction) {
-
+    public void sendTransactionEvent(String key, Transaction transaction) {
         System.out.println("📤 Sending to Kafka → Topic: " + TOPIC + ", Key: " + key + ", Message: " + transaction);
 
-        CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send(TOPIC, key, transaction);
+        CompletableFuture<SendResult<String, Transaction>> future = kafkaTemplate.send(TOPIC, key, transaction);
 
         future.thenAccept(result -> {
             RecordMetadata metadata = result.getRecordMetadata();

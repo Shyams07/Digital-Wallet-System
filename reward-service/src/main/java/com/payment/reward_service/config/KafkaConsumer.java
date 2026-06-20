@@ -1,5 +1,6 @@
 package com.payment.reward_service.config;
 
+import com.payment.reward_service.entity.Transaction;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
@@ -7,51 +8,36 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import java.util.HashMap;
 import java.util.Map;
-
 
 @Configuration
 public class KafkaConsumer {
 
     @Bean
-    public ConsumerFactory<String, String> consumerFactory() {
+    public ConsumerFactory<String, Transaction> consumerFactory(){
+        JsonDeserializer<Transaction> deserializer = new JsonDeserializer<>(Transaction.class);
+        deserializer.setRemoveTypeHeaders((false));
+        deserializer.setUseTypeMapperForKey(true);
+        deserializer.addTrustedPackages("com.paypal.transaction-service.entity");
 
         Map<String, Object> props = new HashMap<>();
 
-        props.put(
-                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                "localhost:9092"
-        );
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost: 9092");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "reward-group");
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, deserializer);
 
-        props.put(
-                ConsumerConfig.GROUP_ID_CONFIG,
-                "reward-group"
-        );
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), deserializer);
 
-        props.put(
-                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                StringDeserializer.class
-        );
-
-        props.put(
-                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                StringDeserializer.class
-        );
-
-        return new DefaultKafkaConsumerFactory<>(props);
     }
 
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, String>
-    kafkaListenerContainerFactory() {
-
-        ConcurrentKafkaListenerContainerFactory<String, String> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
-
+    public ConcurrentKafkaListenerContainerFactory<String, Transaction> kafkaListenerContainerFactory(){
+        ConcurrentKafkaListenerContainerFactory<String, Transaction> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
-
-        return factory;
+        return  factory;
     }
+
 }

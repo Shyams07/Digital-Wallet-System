@@ -1,7 +1,7 @@
 package com.payment.reward_service.kafka;
 
-
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.payment.reward_service.entity.Reward;
 import com.payment.reward_service.entity.Transaction;
@@ -15,37 +15,36 @@ import java.time.LocalDateTime;
 public class RewardConsumer {
 
     private final RewardRepository rewardRepository;
-    private final JsonMapper objectMapper;
+    private final ObjectMapper mapper;
 
-    public RewardConsumer(RewardRepository rewardRepository) {
+    public RewardConsumer(RewardRepository rewardRepository, ObjectMapper mapper) {
         this.rewardRepository = rewardRepository;
-        this.objectMapper = JsonMapper.builder()
-                .addModule(new JavaTimeModule())
-                .build();
+
+        this.mapper = new ObjectMapper();
+        this.mapper.registerModule(new JavaTimeModule());
+        this.mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
     @KafkaListener(topics = "txn-initiated", groupId = "reward-group")
-    public void consumeTransaction(String message) {
+    public void consumerTransaction(Transaction transaction){
         try {
-            Transaction transaction = objectMapper.readValue(message, Transaction.class);
-
-            if (rewardRepository.existsByTransactionId(transaction.getId())) {
-                System.out.println("Reward already exists for transaction: " + transaction.getId());
+            if(rewardRepository.existsByTransactionId(transaction.getId())){
+                System.out.println("⚠️ Reward already exists for transaction: " + transaction.getId());
                 return;
             }
-
             Reward reward = new Reward();
             reward.setUserId(transaction.getSenderId());
             reward.setPoints(transaction.getAmount() * 100);
             reward.setSentAt(LocalDateTime.now());
             reward.setTransactionId(transaction.getId());
+
             rewardRepository.save(reward);
-
-            System.out.println("Reward saved: " + reward);
-
-        } catch (Exception e) {
-            System.err.println("Failed to process message: " + e.getMessage());
-            throw new RuntimeException(e);
+            System.out.println("✅ Reward saved: " + reward);
+        }catch (Exception e){
+            System.err.println("❌ Failed to process transaction " + transaction.getId() + ": " + e.getMessage());
+            throw e; // Let Spring Kafka handle the retry
         }
     }
+
+
 }

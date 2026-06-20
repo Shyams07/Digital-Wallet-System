@@ -1,7 +1,8 @@
 package com.payment.notification_service.kafka;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.payment.notification_service.entity.Notification;
 import com.payment.notification_service.entity.Transaction;
 import com.payment.notification_service.repository.NotificationRepository;
@@ -17,21 +18,24 @@ public class NotificationConsumer {
 
     public NotificationConsumer(NotificationRepository notificationRepository) {
         this.notificationRepository = notificationRepository;
+
+        // Setup ObjectMapper with JavaTimeModule to handle LocalDateTime
         this.mapper = new ObjectMapper();
+        this.mapper.registerModule(new JavaTimeModule());
+        this.mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
     @KafkaListener(topics = "txn-initiated", groupId = "notification-group")
-    public void consumeTransaction(String message) {
-
-        System.out.println("Received: " + message);
+    public void consumeTransaction(Transaction transaction) {
+        System.out.println("📥 Received transaction: " + transaction);
 
         Notification notification = new Notification();
-        notification.setUserId(1L);
-        notification.setMessage(message);
+        notification.setUserId(transaction.getSenderId());
+        notification.setMessage("💰 ₹" + transaction.getAmount() + " received from user " + transaction.getSenderId());
         notification.setSentAt(LocalDateTime.now());
 
         notificationRepository.save(notification);
-        System.out.println(" Notification saved: " + notification);
+        System.out.println("✅ Notification saved: " + notification);
     }
 
 }
