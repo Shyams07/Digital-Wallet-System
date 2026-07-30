@@ -29,6 +29,8 @@ jobs:
 
       - name: Build and test project
         run: mvn --batch-mode clean verify
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
   build-and-push-wallet-image:
     name: Build and Push Wallet Image
