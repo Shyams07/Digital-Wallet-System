@@ -7,21 +7,22 @@ spring:
 
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
 
   cloud:
     gateway:
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+
       routes:
         - id: user-service
-          uri: http://localhost:8081
+          uri: ${USER_SERVICE_URL:http://localhost:8081}
           predicates:
             - Path=/auth/**
 
         - id: transaction-service
-          uri: http://localhost:8082
+          uri: ${TRANSACTION_SERVICE_URL:http://localhost:8082}
           predicates:
             - Path=/api/transactions/**
           filters:
@@ -32,7 +33,7 @@ spring:
                 redis-rate-limiter.requestedTokens: 1
 
         - id: reward-service
-          uri: http://localhost:8085
+          uri: ${REWARD_SERVICE_URL:http://localhost:8085}
           predicates:
             - Path=/api/rewards/**
           filters:
@@ -43,7 +44,7 @@ spring:
                 redis-rate-limiter.requestedTokens: 1
 
         - id: notification-service
-          uri: http://localhost:8084
+          uri: ${NOTIFICATION_SERVICE_URL:http://localhost:8084}
           predicates:
             - Path=/api/notifications/**
           filters:
@@ -53,12 +54,12 @@ spring:
                 redis-rate-limiter.burstCapacity: 20
                 redis-rate-limiter.requestedTokens: 1
 
-    httpclient:
-      max-initial-line-length: 4096
-      max-header-size: 8192
+      httpclient:
+        max-initial-line-length: 4096
+        max-header-size: 8192
 
 jwt:
-  secret: secret123secret123secret123secret12
+  secret: ${JWT_SECRET}
 
 logging:
   level:
