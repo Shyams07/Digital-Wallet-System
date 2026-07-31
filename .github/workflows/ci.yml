@@ -32,8 +32,8 @@ jobs:
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
-  build-and-push-wallet-image:
-    name: Build and Push Wallet Image
+  build-and-push-images:
+    name: Build and Push Docker Images
     runs-on: ubuntu-latest
     needs: build-and-test
 
@@ -50,8 +50,10 @@ jobs:
           java-version: "21"
           cache: maven
 
-      - name: Build wallet-service JAR
-        run: mvn --batch-mode -pl wallet-service -am clean package -DskipTests
+      - name: Build executable JAR files
+        run: mvn --batch-mode clean package -DskipTests
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -62,8 +64,8 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push wallet-service image
-        uses: docker/build-push-action@v6
+      - name: Build and push wallet-service
+        uses: docker/build-push-action@v7
         with:
           context: ./wallet-service
           file: ./wallet-service/Dockerfile
@@ -71,3 +73,53 @@ jobs:
           tags: |
             shyams17/payment-wallet-service:latest
             shyams17/payment-wallet-service:${{ github.sha }}
+
+      - name: Build and push user-service
+        uses: docker/build-push-action@v7
+        with:
+          context: ./user-service
+          file: ./user-service/Dockerfile
+          push: true
+          tags: |
+            shyams17/payment-user-service:latest
+            shyams17/payment-user-service:${{ github.sha }}
+
+      - name: Build and push transaction-service
+        uses: docker/build-push-action@v7
+        with:
+          context: ./transaction-service
+          file: ./transaction-service/Dockerfile
+          push: true
+          tags: |
+            shyams17/payment-transaction-service:latest
+            shyams17/payment-transaction-service:${{ github.sha }}
+
+      - name: Build and push notification-service
+        uses: docker/build-push-action@v7
+        with:
+          context: ./notification-service
+          file: ./notification-service/Dockerfile
+          push: true
+          tags: |
+            shyams17/payment-notification-service:latest
+            shyams17/payment-notification-service:${{ github.sha }}
+
+      - name: Build and push reward-service
+        uses: docker/build-push-action@v7
+        with:
+          context: ./reward-service
+          file: ./reward-service/Dockerfile
+          push: true
+          tags: |
+            shyams17/payment-reward-service:latest
+            shyams17/payment-reward-service:${{ github.sha }}
+
+      - name: Build and push api-gateway
+        uses: docker/build-push-action@v7
+        with:
+          context: ./api-gateway
+          file: ./api-gateway/Dockerfile
+          push: true
+          tags: |
+            shyams17/payment-api-gateway:latest
+            shyams17/payment-api-gateway:${{ github.sha }}
