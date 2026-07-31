@@ -1,13 +1,12 @@
 server:
   port: 8082
-  address: 127.0.0.1
 
 spring:
   application:
     name: transaction-service
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -26,5 +25,9 @@ spring:
     show-sql: true
     open-in-view: false
 
+wallet:
+  service:
+    url: ${WALLET_SERVICE_URL:http://localhost:8088/api/v1/wallets}
+
 jwt:
-  secret: ${JWT_SECRET}
+  secret: ${JWT_SECRET:secret123secret123secret123secret12}

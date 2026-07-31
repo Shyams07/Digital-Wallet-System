@@ -16,9 +16,9 @@ spring:
       ddl-auto: update
     show-sql: true
 
-  h2:
-    console:
-      enabled: true
+wallet:
+  service:
+    url: ${WALLET_SERVICE_URL:http://localhost:8088/api/v1/wallets}
 
 jwt:
-  secret: secret123secret123secret123secret12
+  secret: ${JWT_SECRET:secret123secret123secret123secret12}

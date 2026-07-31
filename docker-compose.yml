@@ -46,7 +46,7 @@ services:
       - "8081:8081"
     environment:
       JWT_SECRET: ${JWT_SECRET}
-      WALLET_SERVICE_URL: http://wallet-service:8088
+      WALLET_SERVICE_URL: http://wallet-service:8088/api/v1/wallets
     networks:
       - payment-network
 
@@ -61,7 +61,7 @@ services:
     environment:
       JWT_SECRET: ${JWT_SECRET}
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      WALLET_SERVICE_URL: http://wallet-service:8088
+      WALLET_SERVICE_URL: http://wallet-service:8088/api/v1/wallets
     networks:
       - payment-network
 

@@ -17,12 +17,12 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="api-gateway" options="-parameters" />
+      <module name="api-gateway" options="" />
       <module name="notification-service" options="" />
       <module name="reward-service" options="" />
       <module name="transaction-service" options="" />
       <module name="user-service" options="" />
-      <module name="wallet-service" options="-parameters" />
+      <module name="wallet-service" options="" />
     </option>
   </component>
 </project>
