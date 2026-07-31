@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reward-service
+  namespace: payment-system
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: reward-service
+
+  template:
+    metadata:
+      labels:
+        app: reward-service
+
+    spec:
+      containers:
+        - name: reward-service
+          image: shyams17/payment-reward-service:latest
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 8085
+
+          env:
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: payment-config
+                  key: SPRING_KAFKA_BOOTSTRAP_SERVERS
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reward-service
+  namespace: payment-system
+
+spec:
+  selector:
+    app: reward-service
+
+  ports:
+    - port: 8085
+      targetPort: 8085
+
+  type: ClusterIP

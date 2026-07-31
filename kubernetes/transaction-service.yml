@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transaction-service
+  namespace: payment-system
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: transaction-service
+
+  template:
+    metadata:
+      labels:
+        app: transaction-service
+
+    spec:
+      containers:
+        - name: transaction-service
+          image: shyams17/payment-transaction-service:latest
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 8082
+
+          env:
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: payment-secret
+                  key: JWT_SECRET
+
+            - name: WALLET_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: payment-config
+                  key: WALLET_SERVICE_URL
+
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: payment-config
+                  key: SPRING_KAFKA_BOOTSTRAP_SERVERS
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: transaction-service
+  namespace: payment-system
+
+spec:
+  selector:
+    app: transaction-service
+
+  ports:
+    - port: 8082
+      targetPort: 8082
+
+  type: ClusterIP

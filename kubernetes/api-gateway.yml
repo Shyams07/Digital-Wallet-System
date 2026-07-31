@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: payment-system
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: api-gateway
+
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+
+    spec:
+      containers:
+        - name: api-gateway
+          image: shyams17/payment-api-gateway:latest
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 8086
+
+          env:
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: payment-secret
+                  key: JWT_SECRET
+
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: payment-config
+                  key: REDIS_HOST
+
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: payment-config
+                  key: REDIS_PORT
+
+            - name: USER_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: payment-config
+                  key: USER_SERVICE_URL
+
+            - name: TRANSACTION_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: payment-config
+                  key: TRANSACTION_SERVICE_URL
+
+            - name: NOTIFICATION_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: payment-config
+                  key: NOTIFICATION_SERVICE_URL
+
+            - name: REWARD_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: payment-config
+                  key: REWARD_SERVICE_URL
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+  namespace: payment-system
+
+spec:
+  selector:
+    app: api-gateway
+
+  ports:
+    - port: 8086
+      targetPort: 8086
+
+  type: NodePort
